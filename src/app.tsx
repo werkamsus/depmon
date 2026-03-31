@@ -3,6 +3,7 @@ import { useKeyboard, useRenderer } from "@opentui/react";
 import { C } from "./lib/colors.ts";
 import { sortStacks } from "./lib/helpers.ts";
 import type { TabName, SortMode } from "./lib/types.ts";
+import { configExists } from "./lib/config.ts";
 import { useDeployData } from "./data/use-deploy-data.ts";
 import { Header } from "./components/header.tsx";
 import { StatusBar } from "./components/status-bar.tsx";
@@ -11,10 +12,12 @@ import { DeploysView } from "./components/deploys-view.tsx";
 import { ActivityView } from "./components/activity-view.tsx";
 import { StackHistoryView } from "./components/stack-history-view.tsx";
 import { FilterBar } from "./components/filter-bar.tsx";
+import { SetupView } from "./components/setup-view.tsx";
 
 const TABS: TabName[] = ["stacks", "deploys", "activity"];
 
 export function App() {
+  const [showSetup, setShowSetup] = useState(!configExists());
   const renderer = useRenderer();
   const { data, refresh } = useDeployData();
   const [activeTab, setActiveTab] = useState<TabName>("stacks");
@@ -51,6 +54,9 @@ export function App() {
   }, [activeTab, data, sorted]);
 
   useKeyboard((key) => {
+    // Setup view handles its own keys
+    if (showSetup) return;
+
     // Quit (but not while filtering)
     if (!filterActive && (key.name === "q" || (key.ctrl && key.name === "c"))) {
       renderer.destroy();
@@ -209,11 +215,22 @@ export function App() {
       return;
     }
 
+    // Open config
+    if (key.name === "c") {
+      setShowSetup(true);
+      return;
+    }
+
     // Number keys for tabs
     if (key.name === "1") { setActiveTab("stacks"); setSelectedIdx(0); }
     if (key.name === "2") { setActiveTab("deploys"); setSelectedIdx(0); }
     if (key.name === "3") { setActiveTab("activity"); setSelectedIdx(0); }
   });
+
+  // Setup view
+  if (showSetup) {
+    return <SetupView onDone={() => { setShowSetup(false); refresh(); }} />;
+  }
 
   // Sub-view: expanded stack history
   if (expandedStack) {

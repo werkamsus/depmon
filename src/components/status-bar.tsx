@@ -24,6 +24,7 @@ export function StatusBar({ hint }: { hint?: string }) {
             <span fg={C.fgMuted}>p</span> pulumi{"  "}
             <span fg={C.fgMuted}>g</span> github{"  "}
             <span fg={C.fgMuted}>r</span> refresh{"  "}
+            <span fg={C.fgMuted}>c</span> config{"  "}
             <span fg={C.fgMuted}>q</span> quit
           </>
         )}
