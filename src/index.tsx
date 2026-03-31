@@ -1,16 +1,16 @@
-import { createCliRenderer, TextAttributes } from "@opentui/core";
+#!/usr/bin/env bun
+import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
+import { App } from "./app.tsx";
 
-function App() {
-  return (
-    <box alignItems="center" justifyContent="center" flexGrow={1}>
-      <box justifyContent="center" alignItems="flex-end">
-        <ascii-font font="tiny" text="OpenTUI" />
-        <text attributes={TextAttributes.DIM}>What will you build?</text>
-      </box>
-    </box>
-  );
+// Handle CLI subcommands before starting TUI
+const cmd = process.argv[2];
+if (cmd === "update") {
+  console.log("Updating depmon...");
+  const rm = Bun.spawnSync(["bash", "-c", "rm -rf ~/.bun/install/cache/@GH@werkamsus-depmon*"], { stdout: "inherit", stderr: "inherit" });
+  const install = Bun.spawnSync(["bun", "install", "-g", "github:werkamsus/depmon"], { stdout: "inherit", stderr: "inherit" });
+  process.exit(install.exitCode);
 }
 
-const renderer = await createCliRenderer();
+const renderer = await createCliRenderer({ exitOnCtrlC: false });
 createRoot(renderer).render(<App />);

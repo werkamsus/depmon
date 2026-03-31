@@ -1,11 +1,22 @@
 {
-  "name": "temper-deployment-monitor",
+  "name": "depmon",
+  "version": "0.1.0",
+  "description": "Terminal UI deployment monitor for Pulumi stacks + GitHub Actions",
   "module": "src/index.tsx",
   "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun run --watch src/index.tsx"
+  "bin": {
+    "depmon": "src/index.tsx"
   },
+  "scripts": {
+    "dev": "bun run --watch src/index.tsx",
+    "start": "bun run src/index.tsx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/werkamsus/depmon"
+  },
+  "keywords": ["pulumi", "deploy", "monitor", "tui", "terminal", "opentui"],
+  "license": "MIT",
   "devDependencies": {
     "@types/bun": "latest"
   },
