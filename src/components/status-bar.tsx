@@ -1,4 +1,7 @@
 import { C } from "../lib/colors.ts";
+import { loadConfig } from "../lib/config.ts";
+
+const cfg = loadConfig();
 
 export function StatusBar({ hint }: { hint?: string }) {
   return (
@@ -25,7 +28,7 @@ export function StatusBar({ hint }: { hint?: string }) {
           </>
         )}
       </text>
-      <text fg={C.fgDark}>temper/unnbound-infra</text>
+      <text fg={C.fgDark}>{cfg.ghRepo || "depmon"}</text>
     </box>
   );
 }

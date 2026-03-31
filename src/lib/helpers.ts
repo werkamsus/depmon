@@ -52,7 +52,7 @@ export function pad(str: string, len: number): string {
 export function shortBranch(branch: string): string {
   return branch
     .replace("refs/heads/", "")
-    .replace(/^(nick|daniel|botond|rony|zeratul9911)\//, "");
+    .replace(/^[a-zA-Z0-9_-]+\//, "");
 }
 
 export function isCoreName(name: string): boolean {
