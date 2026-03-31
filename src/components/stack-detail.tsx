@@ -41,7 +41,7 @@ export function StackDetail({
         <text fg={isCore ? C.orange : C.cyan}><strong>{stack.name}</strong></text>
         <text fg={C.fgDark}>v{String(history.version)}</text>
         <text fg={C.fgDark}>|</text>
-        <text fg={pSc}>{statusIcon(history.status)} pulumi:{history.status}</text>
+        <text fg={pSc}>{statusIcon(history.status)} {history.kind}:{history.status}</text>
         <text fg={gSc}>{gIcon} gh:{gLabel}</text>
         {history.duration && <text fg={C.fgDark}>| {history.duration}</text>}
       </box>

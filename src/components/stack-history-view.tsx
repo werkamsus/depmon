@@ -24,7 +24,7 @@ export function StackHistoryView({
 
   useEffect(() => {
     setLoading(true);
-    fetchStackHistory(stack.name, 15).then((h) => {
+    fetchStackHistory(stack.name, 15, true).then((h) => {
       setEntries(h);
       setLoading(false);
       onEntriesLoaded?.(h);
@@ -77,10 +77,11 @@ export function StackHistoryView({
       <box flexDirection="row" paddingX={2}>
         <text fg={C.fgDark}><strong>{pad("", 3)}</strong></text>
         <text fg={C.fgDark}><strong>{pad("VER", 6)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("KIND", 9)}</strong></text>
         <text fg={C.fgDark}><strong>{pad("STATUS", 12)}</strong></text>
-        <text fg={C.fgDark}><strong>{pad("DURATION", 10)}</strong></text>
-        <text fg={C.fgDark}><strong>{pad("BRANCH", 22)}</strong></text>
-        <text fg={C.fgDark}><strong>{pad("MESSAGE", Math.max(20, width - 75))}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("DUR", 8)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("BRANCH", 20)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("MESSAGE", Math.max(14, width - 80))}</strong></text>
         <text fg={C.fgDark}><strong>WHEN</strong></text>
       </box>
 
@@ -94,10 +95,11 @@ export function StackHistoryView({
             <box key={e.version} flexDirection="row" width="100%" backgroundColor={bg} paddingX={2} height={1}>
               <text fg={sc}>{pad(statusIcon(e.status), 3)}</text>
               <text fg={C.fgDark}>{pad(`v${e.version}`, 6)}</text>
+              <text fg={e.kind === "update" ? C.fg : C.fgDark}>{pad(e.kind, 9)}</text>
               <text fg={sc}>{pad(e.status, 12)}</text>
-              <text fg={C.fgDark}>{pad(e.duration || "—", 10)}</text>
-              <text fg={C.magenta}>{pad(truncate(shortBranch(e.branch), 20), 22)}</text>
-              <text fg={C.fg}>{pad(truncate(e.message, Math.max(18, width - 77)), Math.max(20, width - 75))}</text>
+              <text fg={C.fgDark}>{pad(e.duration || "—", 8)}</text>
+              <text fg={C.magenta}>{pad(truncate(shortBranch(e.branch), 18), 20)}</text>
+              <text fg={C.fg}>{pad(truncate(e.message, Math.max(12, width - 82)), Math.max(14, width - 80))}</text>
               <text fg={C.fgDark}>{timeAgo(e.startTime)}</text>
             </box>
           );

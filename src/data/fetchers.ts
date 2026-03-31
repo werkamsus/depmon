@@ -75,21 +75,29 @@ export async function fetchStackList(): Promise<StackInfo[]> {
 
 export async function fetchStackHistory(
   stackName: string,
-  pageSize = 1
+  pageSize = 1,
+  includeRefresh = false,
 ): Promise<StackHistory[]> {
+  // Fetch extra entries so we can filter out refreshes and still return enough
+  const fetchSize = includeRefresh ? pageSize : pageSize + 10;
   const text = await runCmd(
     [
       "pulumi", "--cwd", cfg.pulumiPkg, "stack", "history",
       "--stack", stackName,
       "--json", "--show-secrets=false",
-      "--page-size", String(pageSize),
+      "--page-size", String(fetchSize),
     ],
     cfg.pulumiDir
   );
   try {
     const entries = JSON.parse(text);
     if (!entries || entries.length === 0) return [];
-    return entries.map(parseHistoryEntry);
+    const parsed: StackHistory[] = entries.map(parseHistoryEntry);
+    if (includeRefresh) return parsed.slice(0, pageSize);
+    // Filter to only real deploys (update/import/destroy), skip refresh/preview
+    return parsed
+      .filter((e) => e.kind === "update" || e.kind === "import" || e.kind === "destroy")
+      .slice(0, pageSize);
   } catch {
     return [];
   }
