@@ -50,9 +50,7 @@ export function pad(str: string, len: number): string {
 }
 
 export function shortBranch(branch: string): string {
-  return branch
-    .replace("refs/heads/", "")
-    .replace(/^[a-zA-Z0-9_-]+\//, "");
+  return branch.replace("refs/heads/", "");
 }
 
 export function isCoreName(name: string): boolean {

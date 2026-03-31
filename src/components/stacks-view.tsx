@@ -1,7 +1,8 @@
+import { useMemo } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { C } from "../lib/colors.ts";
-import { pad } from "../lib/helpers.ts";
-import type { DeployData, SortMode, StackInfo } from "../lib/types.ts";
+import { pad, extractStackName } from "../lib/helpers.ts";
+import type { DeployData, SortMode, StackInfo, GHRun } from "../lib/types.ts";
 import { Divider } from "./divider.tsx";
 import { StackRow } from "./stack-row.tsx";
 import { StackDetail } from "./stack-detail.tsx";
@@ -21,6 +22,16 @@ export function StacksView({
 }) {
   const { width, height } = useTerminalDimensions();
 
+  // Build a map: stack name -> most recent GH run for that stack
+  const ghRunByStack = useMemo(() => {
+    const map = new Map<string, GHRun>();
+    for (const run of data.ghRuns) {
+      const name = extractStackName(run.name);
+      if (!map.has(name)) map.set(name, run);
+    }
+    return map;
+  }, [data.ghRuns]);
+
   if (sorted.length === 0 && !data.loading) {
     return (
       <box justifyContent="center" alignItems="center" flexGrow={1}>
@@ -37,8 +48,8 @@ export function StacksView({
   const showing = sorted.length;
   const sortLabel = sortMode === "recent" ? "recent" : "name";
 
-  const branchW = Math.max(18, Math.floor((width - 80) * 0.4));
-  const msgW = Math.max(18, Math.floor((width - 80) * 0.5));
+  const branchW = Math.max(20, Math.floor((width - 85) * 0.4));
+  const msgW = Math.max(16, Math.floor((width - 85) * 0.45));
 
   return (
     <box flexDirection="column" width="100%" flexGrow={1}>
@@ -63,12 +74,12 @@ export function StacksView({
 
       {/* Column headers */}
       <box flexDirection="row" paddingX={2} width="100%">
-        <text fg={C.fgDark}>{pad("", 3)}</text>
-        <text fg={C.fgDark}><strong>{pad("STACK", 16)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("P·G", 5)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("STACK", 14)}</strong></text>
         <text fg={C.fgDark}><strong>{pad("BRANCH", branchW + 1)}</strong></text>
         <text fg={C.fgDark}><strong>{pad("MESSAGE", msgW + 1)}</strong></text>
-        <text fg={C.fgDark}><strong>{pad("AUTHOR", 10)}</strong></text>
-        <text fg={C.fgDark}><strong>{pad("UPDATED", 10)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("AUTHOR", 9)}</strong></text>
+        <text fg={C.fgDark}><strong>{pad("UPDATED", 9)}</strong></text>
         <text fg={C.fgDark}><strong>RES</strong></text>
       </box>
 
@@ -81,6 +92,7 @@ export function StacksView({
             key={stack.name}
             stack={stack}
             history={data.history.get(stack.name)}
+            ghRun={ghRunByStack.get(stack.name)}
             selected={i === selectedIdx}
             width={width}
           />
@@ -92,6 +104,7 @@ export function StacksView({
         <StackDetail
           stack={sorted[selectedIdx]}
           history={data.history.get(sorted[selectedIdx].name)}
+          ghRun={ghRunByStack.get(sorted[selectedIdx].name)}
         />
       )}
     </box>
