@@ -111,8 +111,17 @@ export function App() {
         setHistoryIdx((i) => Math.max(0, i - 1));
         return;
       }
-      if (key.name === "enter" || key.name === "return" || key.name === "i") {
+      if (key.name === "i") {
         setInspecting((v) => !v);
+        return;
+      }
+      if (key.name === "enter" || key.name === "return") {
+        // Open the selected deploy in Pulumi Cloud
+        const stack = data.stacks.find((s) => s.name === expandedStack);
+        const entry = historyEntries[historyIdx];
+        if (stack?.url && entry) {
+          Bun.spawn(["open", `${stack.url}/updates/${entry.version}`], { stdout: "ignore", stderr: "ignore" });
+        }
         return;
       }
       // Open in Pulumi Cloud

@@ -57,34 +57,32 @@ export function isCoreName(name: string): boolean {
   return ["prod", "stg", "dev"].includes(name);
 }
 
-// Core stacks always pinned to bottom in this order
-const CORE_ORDER = ["dev", "stg", "prod"];
-
 import type { SortMode, StackInfo, StackHistory } from "./types.ts";
+
+const CORE_ORDER = ["dev", "stg", "prod"];
 
 export function sortStacks(
   stacks: StackInfo[],
   mode: SortMode = "name",
   history?: Map<string, StackHistory>,
 ): StackInfo[] {
-  const core = stacks.filter((s) => CORE_ORDER.includes(s.name));
-  const rest = stacks.filter((s) => !CORE_ORDER.includes(s.name));
-
-  // Sort non-core stacks
-  rest.sort((a, b) => {
-    if (mode === "recent") {
+  if (mode === "recent") {
+    // All stacks sorted by most recent deploy, no pinning
+    return [...stacks].sort((a, b) => {
       const aTime = history?.get(a.name)?.startTime;
       const bTime = history?.get(b.name)?.startTime;
       if (aTime && bTime) return new Date(bTime).getTime() - new Date(aTime).getTime();
       if (aTime) return -1;
       if (bTime) return 1;
-    }
-    return a.name.localeCompare(b.name);
-  });
+      return a.name.localeCompare(b.name);
+    });
+  }
 
-  // Sort core stacks in fixed order: dev, stg, prod (bottom)
+  // Name mode: non-core alphabetical, then core pinned to bottom
+  const core = stacks.filter((s) => CORE_ORDER.includes(s.name));
+  const rest = stacks.filter((s) => !CORE_ORDER.includes(s.name));
+  rest.sort((a, b) => a.name.localeCompare(b.name));
   core.sort((a, b) => CORE_ORDER.indexOf(a.name) - CORE_ORDER.indexOf(b.name));
-
   return [...rest, ...core];
 }
 
