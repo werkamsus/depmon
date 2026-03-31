@@ -10,10 +10,12 @@ export function StackHistoryView({
   stack,
   selectedIdx,
   inspecting,
+  onEntriesLoaded,
 }: {
   stack: StackInfo;
   selectedIdx: number;
   inspecting: boolean;
+  onEntriesLoaded?: (entries: StackHistory[]) => void;
 }) {
   const { width, height } = useTerminalDimensions();
   const [entries, setEntries] = useState<StackHistory[]>([]);
@@ -25,6 +27,7 @@ export function StackHistoryView({
     fetchStackHistory(stack.name, 15).then((h) => {
       setEntries(h);
       setLoading(false);
+      onEntriesLoaded?.(h);
     });
   }, [stack.name]);
 

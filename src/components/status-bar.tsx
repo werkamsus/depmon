@@ -13,12 +13,14 @@ export function StatusBar({ hint }: { hint?: string }) {
       <text fg={C.fgDark}>
         {hint ?? (
           <>
-            <span fg={C.fgMuted}>j/k</span> navigate{"  "}
+            <span fg={C.fgMuted}>j/k</span> nav{"  "}
             <span fg={C.fgMuted}>tab</span> view{"  "}
             <span fg={C.fgMuted}>enter</span> expand{"  "}
+            <span fg={C.fgMuted}>/</span> filter{"  "}
             <span fg={C.fgMuted}>s</span> sort{"  "}
+            <span fg={C.fgMuted}>p</span> pulumi{"  "}
+            <span fg={C.fgMuted}>g</span> github{"  "}
             <span fg={C.fgMuted}>r</span> refresh{"  "}
-            <span fg={C.fgMuted}>o</span> open{"  "}
             <span fg={C.fgMuted}>q</span> quit
           </>
         )}

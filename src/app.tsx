@@ -23,7 +23,8 @@ export function App() {
   const [expandedStack, setExpandedStack] = useState<string | null>(null);
   const [historyIdx, setHistoryIdx] = useState(0);
   const [inspecting, setInspecting] = useState(false);
-  const [sortMode, setSortMode] = useState<SortMode>("name");
+  const [historyEntries, setHistoryEntries] = useState<import("./lib/types.ts").StackHistory[]>([]);
+  const [sortMode, setSortMode] = useState<SortMode>("recent");
   const SORT_MODES: SortMode[] = ["name", "recent"];
   const [filterActive, setFilterActive] = useState(false);
   const [filterText, setFilterText] = useState("");
@@ -108,10 +109,22 @@ export function App() {
         setInspecting((v) => !v);
         return;
       }
-      if (key.name === "o") {
+      // Open in Pulumi Cloud
+      if (key.name === "p") {
         const stack = data.stacks.find((s) => s.name === expandedStack);
-        if (stack?.url) {
+        const entry = historyEntries[historyIdx];
+        if (stack?.url && entry) {
+          Bun.spawn(["open", `${stack.url}/updates/${entry.version}`], { stdout: "ignore", stderr: "ignore" });
+        } else if (stack?.url) {
           Bun.spawn(["open", stack.url], { stdout: "ignore", stderr: "ignore" });
+        }
+        return;
+      }
+      // Open in GitHub Actions
+      if (key.name === "g") {
+        const entry = historyEntries[historyIdx];
+        if (entry?.ghRunUrl) {
+          Bun.spawn(["open", entry.ghRunUrl], { stdout: "ignore", stderr: "ignore" });
         }
         return;
       }
@@ -167,16 +180,24 @@ export function App() {
       }
     }
 
-    // Open URL
-    if (key.name === "o") {
-      let url = "";
+    // Open in Pulumi Cloud
+    if (key.name === "p") {
       if (activeTab === "stacks") {
-        url = sorted[selectedIdx]?.url || "";
-      } else if (activeTab === "deploys") {
-        url = data.ghRuns[selectedIdx]?.url || "";
+        const stack = sorted[selectedIdx];
+        if (stack?.url) Bun.spawn(["open", stack.url], { stdout: "ignore", stderr: "ignore" });
       }
-      if (url) {
-        Bun.spawn(["open", url], { stdout: "ignore", stderr: "ignore" });
+      return;
+    }
+
+    // Open in GitHub Actions
+    if (key.name === "g") {
+      if (activeTab === "stacks") {
+        const name = sorted[selectedIdx]?.name;
+        const h = name ? data.history.get(name) : undefined;
+        if (h?.ghRunUrl) Bun.spawn(["open", h.ghRunUrl], { stdout: "ignore", stderr: "ignore" });
+      } else if (activeTab === "deploys") {
+        const url = data.ghRuns[selectedIdx]?.url;
+        if (url) Bun.spawn(["open", url], { stdout: "ignore", stderr: "ignore" });
       }
       return;
     }
@@ -205,12 +226,12 @@ export function App() {
       <box flexDirection="column" width="100%" height="100%" backgroundColor={C.bg}>
         <Header activeTab={activeTab} loading={data.loading} lastRefresh={data.lastRefresh} fromCache={data.fromCache} />
         <box flexGrow={1}>
-          <StackHistoryView stack={stack} selectedIdx={historyIdx} inspecting={inspecting} />
+          <StackHistoryView stack={stack} selectedIdx={historyIdx} inspecting={inspecting} onEntriesLoaded={setHistoryEntries} />
         </box>
         <StatusBar hint={
           inspecting
-            ? "esc close inspect  j/k navigate  o open in browser"
-            : "esc back  j/k navigate  enter/i inspect  o open in browser"
+            ? "esc close  j/k nav  p pulumi  g github"
+            : "esc back  j/k nav  enter inspect  p pulumi  g github"
         } />
       </box>
     );
