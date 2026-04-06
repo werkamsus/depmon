@@ -1,6 +1,6 @@
 export const C = {
-  bg: "#1a1b26",
-  bgDark: "#16161e",
+  bg: "transparent",
+  bgDark: "transparent",
   bgHighlight: "#292e42",
   bgSelected: "#33467c",
   fg: "#c0caf5",
